@@ -11,7 +11,7 @@ func main() {
 	app := &cli.App{
 		Commands: []*cli.Command{
 			{
-				Name:    "add",
+				Name:    "ss",
 				Aliases: []string{"a"},
 				Usage:   "add a task to the list",
 				Action: func(cCtx *cli.Context) error {
