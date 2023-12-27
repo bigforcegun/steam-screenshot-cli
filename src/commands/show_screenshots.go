@@ -3,10 +3,14 @@ package commands
 import (
 	"fmt"
 	"github.com/gocolly/colly/v2"
+	"io"
+	"log"
 	"log/slog"
 	"net/http"
+	"os"
 	"path/filepath"
 	"steam-screenshot-cli/src/steam"
+	"time"
 )
 
 func ShowScreenshots(userID string) {
@@ -101,12 +105,15 @@ func parseFilePageV1() {
 		steamFile.GameName = e.Text
 	})
 
-	c.OnHTML(".detailsStatRight", func(e *colly.HTMLElement) {
-		steamFile.CreatedAt = e.Text
+	c.OnHTML(".detailsStatsContainerRight", func(e *colly.HTMLElement) {
+		ch := e.DOM.Children()
+		date := ch.Eq(1).Text()
+		//steamFile.CreatedAt = e.Text
+		steamFile.CreatedAt = date
 	})
 
 	c.OnHTML("img.screenshotEnlargeable", func(e *colly.HTMLElement) {
-		steamFile.PictureURL = e.Attr("src")
+		steamFile.ImageUrl = e.Attr("src")
 	})
 
 	c.Visit("file://" + file_name)
@@ -114,4 +121,55 @@ func parseFilePageV1() {
 	c.Wait()
 
 	slog.Info(":🗄 file:", steamFile)
+
+	saveSteamFile(steamFile)
+
+}
+
+func saveSteamFile(sfile steam.SteamFile) {
+	var sourceDirectory = "./"
+	var gameDirectory = sfile.GameName
+	var target = filepath.Join(sourceDirectory, gameDirectory)
+	var realFile = downloadFileToDirectory(sfile.ImageUrl, target, sfile)
+	updateFileMeta(*realFile, sfile)
+}
+
+func downloadFileToDirectory(url string, target string, sfile steam.SteamFile) *os.File {
+
+	// don't worry about errors
+	response, e := http.Get(url)
+	if e != nil {
+		log.Fatal(e)
+	}
+	defer response.Body.Close()
+
+	//open a file for writing
+	fileName := sfile.FileName()
+	newFilePath := filepath.Join(target, fileName)
+	if _, err := os.Stat(fileName); os.IsNotExist(err) {
+		os.MkdirAll(target, 0755) // FIXME: как бы тут дефолт создавать с umask
+	}
+	file, err := os.Create(newFilePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	// Use io.Copy to just dump the response body to the file. This supports huge files
+	_, err = io.Copy(file, response.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Success!")
+	return file
+}
+
+func updateFileMeta(file os.File, sfile steam.SteamFile) {
+	createdTime := sfile.FileCreatedAt()
+	currentTime := time.Now().Local()
+	//Set both access time and modified time of the file to the current time
+	err := os.Chtimes(file.Name(), createdTime, currentTime)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
