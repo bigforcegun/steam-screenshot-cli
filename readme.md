@@ -9,3 +9,6 @@ Main goal - create steam screenshots crawler to backup all steam screnshots to o
 - make it works in cloud automaticly (on premise of course)
 
 ♥️
+## Docs
+
+- https://github.com/urfave/cli/tree/main/docs/v2/examples

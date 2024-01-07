@@ -7,6 +7,11 @@ import (
 	"time"
 )
 
+type SteamGame struct {
+	ID   string
+	Name string
+}
+
 type SteamFile struct {
 	ID        string
 	GameName  string
