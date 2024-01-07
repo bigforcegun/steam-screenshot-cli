@@ -16,7 +16,8 @@ type SteamFile struct {
 
 func (f SteamFile) FileCreatedAt() time.Time {
 	timeString := f.CreatedAt
-	theTime, err := time.Parse("15 Jan @ 12:52am", timeString)
+	theTime, err := ParseSteamDate(timeString)
+	// fixme бля ну не тут что за руби стайл мутировать и писать логи внутри класса модели? 🤡
 	if err != nil {
 		fmt.Println("Could not parse time:", err)
 	}

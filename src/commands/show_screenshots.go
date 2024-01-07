@@ -10,7 +10,6 @@ import (
 	"os"
 	"path/filepath"
 	"steam-screenshot-cli/src/steam"
-	"time"
 )
 
 func ShowScreenshots(userID string) {
@@ -166,9 +165,9 @@ func downloadFileToDirectory(url string, target string, sfile steam.SteamFile) *
 
 func updateFileMeta(file os.File, sfile steam.SteamFile) {
 	createdTime := sfile.FileCreatedAt()
-	currentTime := time.Now().Local()
+	// currentTime := time.Now().Local()
 	//Set both access time and modified time of the file to the current time
-	err := os.Chtimes(file.Name(), createdTime, currentTime)
+	err := os.Chtimes(file.Name(), createdTime, createdTime)
 	if err != nil {
 		fmt.Println(err)
 	}
