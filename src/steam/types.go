@@ -12,6 +12,11 @@ type SteamGame struct {
 	Name string
 }
 
+type SteamTableScreenshot struct {
+	ID  string
+	URL string
+}
+
 type SteamFile struct {
 	ID        string
 	GameName  string

@@ -2,9 +2,7 @@ package commands
 
 import (
 	"fmt"
-	"github.com/fatih/color"
 	"github.com/gocolly/colly/v2"
-	"github.com/rodaine/table"
 	"io"
 	"log"
 	"log/slog"
@@ -40,26 +38,6 @@ func ListUserScreenshots(userID string) {
 	parseFilePageV1()
 
 	fmt.Println("go go to screenshots", userID)
-}
-
-func ListUserGames(userID string) {
-	games := steam.GetUserGameList(userID)
-	printGameTable(games)
-}
-
-func printGameTable(games []steam.SteamGame) {
-	headerFmt := color.New(color.FgGreen, color.Underline).SprintfFunc()
-	columnFmt := color.New(color.FgYellow).SprintfFunc()
-
-	tbl := table.New("Name", "ID")
-	tbl.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
-
-	for _, game := range games {
-		tbl.AddRow(game.Name, game.ID)
-	}
-
-	tbl.Print()
-
 }
 
 func parseGamePageV1(url string) {
